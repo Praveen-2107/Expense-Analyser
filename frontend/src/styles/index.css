@@ -29,3 +29,74 @@ body {
 .auth-hero {
   background: linear-gradient(160deg, #0f172a 0%, #0b5cab 100%);
 }
+
+.dashboard-shell {
+  background:
+    radial-gradient(circle at top left, rgba(2, 132, 199, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 22%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+}
+
+.dashboard-container {
+  max-width: 1400px;
+}
+
+.dashboard-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #0b5cab 55%, #0284c7 100%);
+}
+
+.dashboard-subtitle {
+  max-width: 760px;
+}
+
+.metric-card,
+.info-tile,
+.insight-card,
+.budget-summary,
+.transaction-row {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+}
+
+.trend-chart {
+  min-height: 260px;
+  padding: 0.5rem 0;
+}
+
+.trend-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  min-height: 220px;
+}
+
+.trend-bar {
+  width: 100%;
+  max-width: 56px;
+  border-radius: 999px 999px 16px 16px;
+  background: linear-gradient(180deg, #38bdf8 0%, #0b5cab 100%);
+  box-shadow: 0 16px 30px rgba(11, 92, 171, 0.18);
+}
+
+.trend-label {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.budget-progress {
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.budget-progress .progress-bar {
+  border-radius: 999px;
+}
+
+.budget-summary {
+  border: 1px solid rgba(14, 165, 233, 0.15);
+}
