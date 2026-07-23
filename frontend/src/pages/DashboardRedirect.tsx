@@ -1,4 +1,7 @@
 import { useAuth } from '../context/AuthContext';
+import { AnalyticsInsights } from '../components/analytics/AnalyticsInsights';
+import { CategoryDistributionChart } from '../components/analytics/CategoryDistributionChart';
+import { SpendingTrendChart } from '../components/analytics/SpendingTrendChart';
 
 export function DashboardRedirect() {
   const { user, logout } = useAuth();
@@ -30,6 +33,15 @@ export function DashboardRedirect() {
     'You have $1,140 remaining in your monthly budget with 9 days left to reset.',
     'Recurring subscriptions are stable, but one unused service could save $12/month.'
   ] as const;
+
+  const spendingTrend = [
+    { month: 'Jan', amount: 4200 },
+    { month: 'Feb', amount: 3800 },
+    { month: 'Mar', amount: 5100 },
+    { month: 'Apr', amount: 4700 },
+    { month: 'May', amount: 6200 },
+    { month: 'Jun', amount: 5600 }
+  ];
 
   return (
     <main className="dashboard-shell min-vh-100 py-4 py-lg-5 px-3 px-lg-4">
@@ -77,66 +89,11 @@ export function DashboardRedirect() {
 
         <div className="row g-4 mb-4">
           <div className="col-12 col-xl-8">
-            <section className="card border-0 shadow-sm rounded-4 h-100">
-              <div className="card-body p-4 p-lg-5">
-                <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                  <div>
-                    <p className="text-uppercase small text-secondary fw-semibold mb-1">Spending Trend</p>
-                    <h3 className="h4 fw-bold mb-0">Last 6 months overview</h3>
-                  </div>
-                  <span className="badge rounded-pill text-bg-light border text-secondary px-3 py-2">Chart preview</span>
-                </div>
-
-                <div className="trend-chart d-flex align-items-end gap-3 mb-4">
-                  {[58, 46, 72, 64, 88, 76].map((height, index) => (
-                    <div className="trend-column" key={index}>
-                      <div className="trend-bar" style={{ height: `${height}%` }} />
-                      <span className="trend-label">M{index + 1}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="row g-3">
-                  <div className="col-md-4">
-                    <div className="info-tile rounded-4 p-3 h-100">
-                      <p className="text-secondary small mb-1">Highest spend category</p>
-                      <h4 className="h5 fw-bold mb-1">Housing</h4>
-                      <p className="mb-0 text-secondary">34% of monthly spending</p>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="info-tile rounded-4 p-3 h-100">
-                      <p className="text-secondary small mb-1">Projected savings</p>
-                      <h4 className="h5 fw-bold mb-1">$1,320</h4>
-                      <p className="mb-0 text-secondary">If current pace continues</p>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="info-tile rounded-4 p-3 h-100">
-                      <p className="text-secondary small mb-1">Budget alerts</p>
-                      <h4 className="h5 fw-bold mb-1">2 active</h4>
-                      <p className="mb-0 text-secondary">Subscriptions and dining</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <SpendingTrendChart data={spendingTrend} />
           </div>
 
           <div className="col-12 col-xl-4">
-            <section className="card border-0 shadow-sm rounded-4 h-100">
-              <div className="card-body p-4 p-lg-5">
-                <p className="text-uppercase small text-secondary fw-semibold mb-1">AI Insights</p>
-                <h3 className="h4 fw-bold mb-4">What the assistant sees</h3>
-                <div className="d-grid gap-3">
-                  {aiInsights.map((insight) => (
-                    <div className="insight-card rounded-4 p-3" key={insight}>
-                      <p className="mb-0 text-secondary">{insight}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <AnalyticsInsights insights={aiInsights as unknown as string[]} />
           </div>
         </div>
 
@@ -174,34 +131,7 @@ export function DashboardRedirect() {
           </div>
 
           <div className="col-12 col-xl-5">
-            <section className="card border-0 shadow-sm rounded-4 h-100">
-              <div className="card-body p-4 p-lg-5">
-                <p className="text-uppercase small text-secondary fw-semibold mb-1">Budget Planner</p>
-                <h3 className="h4 fw-bold mb-4">Category allocation</h3>
-
-                <div className="d-grid gap-3">
-                  {categoryBreakdown.map((item) => (
-                    <div key={item.name}>
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <span className="fw-semibold">{item.name}</span>
-                        <span className="text-secondary">{item.amount}</span>
-                      </div>
-                      <div className="progress budget-progress">
-                        <div className={`progress-bar ${item.color}`} style={{ width: `${item.percent}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 p-3 rounded-4 budget-summary">
-                  <p className="text-uppercase small text-secondary fw-semibold mb-1">Next recommendation</p>
-                  <h4 className="h5 fw-bold mb-2">Reduce dining by 10%</h4>
-                  <p className="mb-0 text-secondary">
-                    That would improve your monthly savings by roughly $112 without affecting recurring essentials.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <CategoryDistributionChart items={categoryBreakdown} />
           </div>
         </div>
       </section>
