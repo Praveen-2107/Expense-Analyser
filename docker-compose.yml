@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: expense-analyzer-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: expense_user
+      POSTGRES_PASSWORD: expense_password
+      POSTGRES_DB: expense_analyzer
+    ports:
+      - "5432:5432"
+    volumes:
+      - expense_analyzer_postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: expense-analyzer-backend
+    restart: unless-stopped
+    environment:
+      APP_NAME: AI Expense Analyzer
+      APP_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      SECRET_KEY: change-me-in-production
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      JWT_ALGORITHM: HS256
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: gemini-1.5-flash
+      UPLOADS_DIR: /app/uploads
+      DATABASE_URL: postgresql+psycopg2://expense_user:expense_password@db:5432/expense_analyzer
+      CORS_ORIGINS: '["http://localhost","http://frontend","http://127.0.0.1"]'
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - expense_analyzer_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+    container_name: expense-analyzer-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  expense_analyzer_postgres_data:
+  expense_analyzer_uploads:

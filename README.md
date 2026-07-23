@@ -35,3 +35,26 @@ uvicorn app.main:app --reload
 ## Next Steps
 
 The next module will be authentication with JWT login and registration.
+
+## Docker Deployment
+
+This repository now includes Dockerfiles for both applications and a `docker-compose.yml` file for local production-style deployment.
+
+### Run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### Services
+
+- Frontend: `http://localhost`
+- Backend API: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
+
+### Production Notes
+
+- Set `SECRET_KEY` to a strong random value before deploying.
+- Provide `GEMINI_API_KEY` only if you want live Gemini insights.
+- Update `VITE_API_BASE_URL` and `CORS_ORIGINS` to match your real domain in production.
+- The backend creates the uploads directory automatically on startup.
