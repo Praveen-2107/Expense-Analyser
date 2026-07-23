@@ -148,3 +148,19 @@ body {
 .budget-summary {
   border: 1px solid rgba(14, 165, 233, 0.15);
 }
+
+.upload-shell {
+  background:
+    radial-gradient(circle at top left, rgba(2, 132, 199, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 22%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+}
+
+.upload-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #0b5cab 55%, #0284c7 100%);
+}
+
+.upload-note {
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+}

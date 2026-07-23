@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     gemini_api_key: str | None = Field(default=None)
     gemini_model: str = Field(default="gemini-1.5-flash")
+    uploads_dir: str = Field(default="uploads")
     database_url: str = Field(default="sqlite:///./expense_analyzer.db")
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
 

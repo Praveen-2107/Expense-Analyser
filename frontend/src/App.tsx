@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthLayout } from './layouts/AuthLayout';
 import { DashboardRedirect } from './pages/DashboardRedirect';
 import { LoginPage } from './pages/LoginPage';
+import { UploadPage } from './pages/UploadPage';
 import { RegisterPage } from './pages/RegisterPage';
 
 function App() {
@@ -20,6 +21,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardRedirect />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/uploads"
+          element={
+            <ProtectedRoute>
+              <UploadPage />
             </ProtectedRoute>
           }
         />

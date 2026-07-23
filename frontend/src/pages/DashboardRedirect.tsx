@@ -5,6 +5,7 @@ import { CategoryDistributionChart } from '../components/analytics/CategoryDistr
 import { SpendingTrendChart } from '../components/analytics/SpendingTrendChart';
 import { useAuth } from '../context/AuthContext';
 import { fetchAIInsights } from '../services/aiService';
+import { Link } from 'react-router-dom';
 
 export function DashboardRedirect() {
   const { user, logout } = useAuth();
@@ -100,7 +101,10 @@ export function DashboardRedirect() {
                 </p>
               </div>
               <div className="dashboard-actions d-flex flex-wrap gap-3 align-items-start">
-                <button className="btn btn-light btn-lg fw-semibold" type="button">
+                <Link className="btn btn-light btn-lg fw-semibold" to="/uploads">
+                  Import Statement
+                </Link>
+                <button className="btn btn-outline-light btn-lg fw-semibold" type="button">
                   Export Report
                 </button>
                 <button className="btn btn-outline-light btn-lg fw-semibold" type="button" onClick={logout}>
