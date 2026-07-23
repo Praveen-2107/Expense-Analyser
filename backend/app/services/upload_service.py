@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from uuid import uuid4
@@ -37,7 +37,7 @@ def _safe_filename(filename: str) -> str:
 
 
 def _store_upload(file_name: str, content: bytes, user_id: int) -> Path:
-    upload_path = _user_upload_dir(user_id) / f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{uuid4().hex}_{_safe_filename(file_name)}"
+    upload_path = _user_upload_dir(user_id) / f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}_{uuid4().hex}_{_safe_filename(file_name)}"
     upload_path.write_bytes(content)
     return upload_path
 
@@ -148,7 +148,7 @@ def _save_statement_record(
         file_type=file_type,
         upload_status=status,
         parsed_summary=parsed_summary,
-        processed_at=datetime.utcnow(),
+        processed_at=datetime.now(timezone.utc),
     )
     db.add(statement)
     db.commit()
@@ -193,7 +193,7 @@ def import_csv_statement(db: Session, user: User, filename: str, content: bytes)
                     title=description[:150],
                     description=description,
                     amount=amount,
-                    expense_date=(transaction_date or datetime.utcnow()).date(),
+                    expense_date=(transaction_date or datetime.now(timezone.utc)).date(),
                     payment_method=None,
                     merchant_name=description[:120],
                     is_recurring=False,
@@ -208,7 +208,7 @@ def import_csv_statement(db: Session, user: User, filename: str, content: bytes)
                     title=description[:150],
                     description=description,
                     amount=amount,
-                    income_date=(transaction_date or datetime.utcnow()).date(),
+                    income_date=(transaction_date or datetime.now(timezone.utc)).date(),
                     source=description[:100],
                     is_recurring=False,
                 )
