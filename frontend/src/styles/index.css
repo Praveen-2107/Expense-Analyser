@@ -149,6 +149,11 @@ body {
   border: 1px solid rgba(14, 165, 233, 0.15);
 }
 
+.prediction-hero {
+  background: linear-gradient(180deg, rgba(11, 92, 171, 0.08), rgba(11, 92, 171, 0.02));
+  border: 1px solid rgba(11, 92, 171, 0.14);
+}
+
 .upload-shell {
   background:
     radial-gradient(circle at top left, rgba(2, 132, 199, 0.14), transparent 24%),

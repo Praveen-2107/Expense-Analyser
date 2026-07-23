@@ -6,6 +6,7 @@ import { SpendingTrendChart } from '../components/analytics/SpendingTrendChart';
 import { useAuth } from '../context/AuthContext';
 import { fetchAIInsights } from '../services/aiService';
 import { Link } from 'react-router-dom';
+import { fetchExpenseForecast } from '../services/predictionService';
 
 export function DashboardRedirect() {
   const { user, logout } = useAuth();
@@ -40,6 +41,11 @@ export function DashboardRedirect() {
   ]);
   const [aiRecommendations, setAiRecommendations] = useState<string[]>([]);
   const [aiSource, setAiSource] = useState<'gemini' | 'fallback'>('fallback');
+  const [forecastSummary, setForecastSummary] = useState('Generating monthly expense forecast...');
+  const [forecastMethod, setForecastMethod] = useState('loading');
+  const [forecastConfidence, setForecastConfidence] = useState<'low' | 'medium' | 'high'>('low');
+  const [forecastValue, setForecastValue] = useState<number | null>(null);
+  const [forecastSeries, setForecastSeries] = useState<Array<{ month: string; predicted_expense: number }>>([]);
 
   const spendingTrend = [
     { month: 'Jan', amount: 4200 },
@@ -79,6 +85,36 @@ export function DashboardRedirect() {
           'Retry the dashboard after the AI service is available.'
         ]);
         setAiSource('fallback');
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchExpenseForecast({ months_ahead: 3 })
+      .then((response) => {
+        if (!isMounted) {
+          return;
+        }
+        setForecastSummary(response.message);
+        setForecastMethod(response.method);
+        setForecastConfidence(response.confidence);
+        setForecastValue(response.next_month_prediction);
+        setForecastSeries(response.forecast);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setForecastSummary('Unable to generate a live forecast right now.');
+        setForecastMethod('fallback');
+        setForecastConfidence('low');
+        setForecastValue(null);
+        setForecastSeries([]);
       });
 
     return () => {
@@ -204,6 +240,75 @@ export function DashboardRedirect() {
 
           <div className="col-12 col-xl-5">
             <CategoryDistributionChart items={categoryBreakdown} />
+          </div>
+        </div>
+
+        <div className="row g-4 mt-0">
+          <div className="col-12">
+            <section className="analytics-card rounded-4 p-4 p-lg-5">
+              <div className="d-flex flex-column flex-xl-row justify-content-between gap-4 align-items-xl-center mb-4">
+                <div>
+                  <p className="text-uppercase small text-secondary fw-semibold mb-1">Machine Learning Prediction</p>
+                  <h3 className="h4 fw-bold mb-0">Next-month expense forecast</h3>
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                  <span className={`badge rounded-pill text-bg-${forecastConfidence === 'high' ? 'success' : forecastConfidence === 'medium' ? 'warning' : 'secondary'} px-3 py-2`}>
+                    Confidence: {forecastConfidence}
+                  </span>
+                  <span className="badge rounded-pill text-bg-light border text-secondary px-3 py-2">
+                    Method: {forecastMethod}
+                  </span>
+                </div>
+              </div>
+
+              <div className="row g-4 align-items-stretch">
+                <div className="col-12 col-xl-4">
+                  <div className="prediction-hero rounded-4 p-4 h-100">
+                    <p className="text-uppercase small text-secondary fw-semibold mb-1">Predicted expense</p>
+                    <h2 className="display-5 fw-bold mb-3">{forecastValue !== null ? `$${forecastValue.toFixed(2)}` : 'N/A'}</h2>
+                    <p className="text-secondary mb-0">{forecastSummary}</p>
+                  </div>
+                </div>
+
+                <div className="col-12 col-xl-8">
+                  <div className="row g-3 h-100">
+                    <div className="col-md-4">
+                      <div className="info-tile rounded-4 p-3 h-100">
+                        <p className="text-secondary small mb-1">Training points</p>
+                        <h4 className="h5 fw-bold mb-0">{forecastSeries.length > 0 ? `${forecastSeries.length} months` : '0 months'}</h4>
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="info-tile rounded-4 p-3 h-100">
+                        <p className="text-secondary small mb-1">Next 3 months</p>
+                        <h4 className="h5 fw-bold mb-0">{forecastSeries.length > 0 ? 'Projected' : 'Unavailable'}</h4>
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="info-tile rounded-4 p-3 h-100">
+                        <p className="text-secondary small mb-1">Use case</p>
+                        <h4 className="h5 fw-bold mb-0">Budget planning</h4>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 d-grid gap-2">
+                    {forecastSeries.length > 0 ? (
+                      forecastSeries.map((item) => (
+                        <div className="insight-card rounded-4 p-3 d-flex justify-content-between align-items-center" key={item.month}>
+                          <span className="fw-semibold">{item.month}</span>
+                          <span className="text-secondary">${item.predicted_expense.toFixed(2)}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="insight-card rounded-4 p-3">
+                        <p className="mb-0 text-secondary">Forecast values will appear here once monthly expense history is available.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </section>
