@@ -1,7 +1,10 @@
-import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
+
 import { AnalyticsInsights } from '../components/analytics/AnalyticsInsights';
 import { CategoryDistributionChart } from '../components/analytics/CategoryDistributionChart';
 import { SpendingTrendChart } from '../components/analytics/SpendingTrendChart';
+import { useAuth } from '../context/AuthContext';
+import { fetchAIInsights } from '../services/aiService';
 
 export function DashboardRedirect() {
   const { user, logout } = useAuth();
@@ -28,11 +31,14 @@ export function DashboardRedirect() {
     { title: 'Streaming Bundle', category: 'Subscriptions', amount: '-$18.99', date: '3 days ago' }
   ] as const;
 
-  const aiInsights = [
-    'Dining expenses are 18% higher than last month. Set a weekly cap to stay within plan.',
-    'You have $1,140 remaining in your monthly budget with 9 days left to reset.',
-    'Recurring subscriptions are stable, but one unused service could save $12/month.'
-  ] as const;
+  const [aiSummary, setAiSummary] = useState('Analyzing your financial activity...');
+  const [aiInsights, setAiInsights] = useState<string[]>([
+    'Loading AI insights for your latest spending data.',
+    'This section will update automatically from the backend.',
+    'If Gemini is unavailable, the app will use deterministic fallback insights.'
+  ]);
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([]);
+  const [aiSource, setAiSource] = useState<'gemini' | 'fallback'>('fallback');
 
   const spendingTrend = [
     { month: 'Jan', amount: 4200 },
@@ -42,6 +48,42 @@ export function DashboardRedirect() {
     { month: 'May', amount: 6200 },
     { month: 'Jun', amount: 5600 }
   ];
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchAIInsights({ focus: 'spending trend analysis and saving recommendations' })
+      .then((response) => {
+        if (!isMounted) {
+          return;
+        }
+        setAiSummary(response.summary);
+        setAiInsights(response.insights);
+        setAiRecommendations(response.recommendations);
+        setAiSource(response.used_gemini ? 'gemini' : 'fallback');
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setAiSummary('Unable to load live AI insights right now.');
+        setAiInsights([
+          'The backend AI endpoint is unavailable at the moment.',
+          'Review the spending and budget sections for manual analysis.',
+          'Reconnect Gemini in the environment variables to enable generative insights.'
+        ]);
+        setAiRecommendations([
+          'Verify the backend is running and authenticated.',
+          'Set the Gemini API key in your environment when ready.',
+          'Retry the dashboard after the AI service is available.'
+        ]);
+        setAiSource('fallback');
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <main className="dashboard-shell min-vh-100 py-4 py-lg-5 px-3 px-lg-4">
@@ -93,7 +135,33 @@ export function DashboardRedirect() {
           </div>
 
           <div className="col-12 col-xl-4">
-            <AnalyticsInsights insights={aiInsights as unknown as string[]} />
+            <div className="d-grid gap-4 h-100">
+              <AnalyticsInsights insights={aiInsights} />
+              <section className="analytics-card rounded-4 p-4 p-lg-5 h-100">
+                <p className="text-uppercase small text-secondary fw-semibold mb-1">AI Summary</p>
+                <h3 className="h4 fw-bold mb-3">Live assistant output</h3>
+                <p className="text-secondary mb-4">{aiSummary}</p>
+                <div className="mb-4">
+                  <p className="text-uppercase small text-secondary fw-semibold mb-2">Recommendations</p>
+                  <div className="d-grid gap-2">
+                    {aiRecommendations.length > 0 ? (
+                      aiRecommendations.map((recommendation) => (
+                        <div className="insight-card rounded-4 p-3" key={recommendation}>
+                          <p className="mb-0 text-secondary">{recommendation}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="insight-card rounded-4 p-3">
+                        <p className="mb-0 text-secondary">Recommendations will appear here once AI finishes analyzing.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <span className={`badge rounded-pill text-bg-${aiSource === 'gemini' ? 'success' : 'secondary'} px-3 py-2`}>
+                  {aiSource === 'gemini' ? 'Gemini powered' : 'Fallback analysis'}
+                </span>
+              </section>
+            </div>
           </div>
         </div>
 
